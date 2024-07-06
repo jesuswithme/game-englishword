@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>향상된 영어 단어 맞추기 게임</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-image: url('https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        select, input, button {
+            font-size: 16px;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        select, input {
+            width: 80%;
+            max-width: 300px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #korean-word {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 20px 0 10px;
+        }
+        #english-description {
+            font-style: italic;
+            color: #34495e;
+            margin-bottom: 20px;
+            font-weight: bold;  /* 영어 설명을 굵게 표시 */
+        }
+        #result, #score, #timer {
+            margin: 10px 0;
+        }
+        #timer {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>향상된 영어 단어 맞추기 게임</h1>
+        <select id="difficulty">
+            <option value="easy">쉬움</option>
+            <option value="medium">보통</option>
+            <option value="hard">어려움</option>
+        </select>
+        <p>아래 한국어 뜻에 해당하는 영어 단어를 입력하세요:</p>
+        <p id="korean-word"></p>
+        <p id="english-description"></p>
+        <input type="text" id="guess" placeholder="영어 단어 입력">
+        <button onclick="checkAnswer()">확인</button>
+        <button onclick="getHint()">힌트</button>
+        <p id="result"></p>
+        <p id="score">점수: 0</p>
+        <p id="timer">남은 시간: 30초</p>
+    </div>
+
+    <script>
+        const words = {
+            easy: [
+                { korean: "사과", english: "apple", description: "A round fruit with red or green skin and white flesh" },
+                { korean: "바나나", english: "banana", description: "A long curved fruit with a yellow skin" },
+                { korean: "고양이", english: "cat", description: "A small domesticated carnivorous mammal with soft fur" },
+                { korean: "개", english: "dog", description: "A domesticated carnivorous mammal that typically has a long snout" },
+                { korean: "코끼리", english: "elephant", description: "A very large plant-eating mammal with a long trunk and tusks" }
+            ],
+            medium: [
+                { korean: "컴퓨터", english: "computer", description: "An electronic device for storing and processing data" },
+                { korean: "창문", english: "window", description: "An opening in the wall or roof of a building or vehicle" },
+                { korean: "책상", english: "desk", description: "A piece of furniture with a flat or sloped surface for writing" },
+                { korean: "전화기", english: "telephone", description: "A device used to transmit sound over long distances" },
+                { korean: "안경", english: "glasses", description: "A pair of lenses set in a frame to correct vision" }
+            ],
+            hard: [
+                { korean: "성취", english: "achievement", description: "A thing done successfully with effort, skill, or courage" },
+                { korean: "혁신", english: "innovation", description: "The action or process of innovating, introducing new ideas" },
+                { korean: "철학", english: "philosophy", description: "The study of the fundamental nature of knowledge, reality, and existence" },
+                { korean: "역설", english: "paradox", description: "A statement that contradicts itself but might be true" },
+                { korean: "공감", english: "empathy", description: "The ability to understand and share the feelings of another" }
+            ]
+        };
+
+        let currentWord;
+        let score = 0;
+        let timeLeft = 30;
+        let timer;
+
+        function newWord() {
+            const difficulty = document.getElementById('difficulty').value;
+            currentWord = words[difficulty][Math.floor(Math.random() * words[difficulty].length)];
+            document.getElementById('korean-word').textContent = currentWord.korean;
+            document.getElementById('english-description').textContent = currentWord.description;
+            document.getElementById('guess').value = '';
+            document.getElementById('result').textContent = '';
+            resetTimer();
+        }
+
+        function checkAnswer() {
+            const guess = document.getElementById('guess').value.toLowerCase();
+            if (guess === currentWord.english) {
+                document.getElementById('result').textContent = "정답입니다!";
+                score++;
+            } else {
+                document.getElementById('result').textContent = `틀렸습니다. 정답은 ${currentWord.english}입니다.`;
+            }
+            document.getElementById('score').textContent = `점수: ${score}`;
+            setTimeout(newWord, 2000);
+        }
+
+        function getHint() {
+            const hint = currentWord.english.slice(0, 2) + "...";
+            document.getElementById('result').textContent = `힌트: ${hint}`;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timeLeft = 30;
+            timer = setInterval(function() {
+                timeLeft--;
+                document.getElementById('timer').textContent = `남은 시간: ${timeLeft}초`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('result').textContent = `시간 초과! 정답은 ${currentWord.english}입니다.`;
+                    setTimeout(newWord, 2000);
+                }
+            }, 1000);
+        }
+
+        document.getElementById('difficulty').addEventListener('change', newWord);
+
+        newWord();
+    </script>
+</body>
+</html>
